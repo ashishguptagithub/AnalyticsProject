@@ -1,0 +1,96 @@
+#The null hypothesis for ANOVA is that the mean (average value of the dependent variable) is the same for all groups. The alternative 
+#or research hypothesis is that the average is not the same for all groups. 
+
+setwd("C:/Users/Ashishkumar_GUpta02/Downloads/Assign")
+mydata<- read.csv("Expectations Evaluation.csv")
+head(mydata) 
+str(mydata)
+nrow(mydata)
+mydata$Y2<- as.numeric(mydata$Y2)
+mydata$Y1<- as.numeric(mydata$Y1)
+#mydata$Expectatations.Manipulation<- as.numeric(mydata$Expectatations.Manipulation)
+#mydata$Expectatations.Manipulation=ifelse(mydata$Expectatations.Manipulation=="h",7,1)
+# Outlier Analysis - Varaiable
+outlier_upper=function(x){
+  q = quantile(x)
+  names(q) = NULL
+  q1 = q[2]
+  q3 = q[4]
+  QR = q3-q1
+  return(q3+1.5*QR);
+}
+outlier_lower=function(x){
+  q = quantile(x)
+  names(q) = NULL
+  q1 = q[2]
+  q3 = q[4]
+  QR = q3-q1
+  return(q1-1.5*QR);
+}
+# outlier limits validation ------------------
+Y2_upper = outlier_upper(mydata$Y2)
+Y2_lower = outlier_lower(mydata$Y2)
+Y1_upper = outlier_upper(mydata$Y1)
+Y1_lower = outlier_lower(mydata$Y1)
+# Outlier data
+mydata[mydata$Y2>Y2_upper | mydata$Y2<Y2_lower , ]
+mydata[mydata$Y1>Y1_upper | mydata$Y1<Y1_lower , ]
+mydata = subset( mydata, mydata$Y2<=Y2_upper & mydata$Y2>=Y2_lower)
+mydata = subset( mydata, mydata$Y1<=Y1_upper & mydata$Y1>=Y1_lower)
+nrow(mydata)
+#mydata$Expectatations.Manipulation=ifelse(mydata$Expectatations.Manipulation=="h",7,1)
+HI<-table(mydata$Expectatations.Manipulation,mydata$Quality.Manipulation)
+#mean(HI[,1])
+#mean(HI[,2])
+aov(Y1~Quality.Manipulation,mydata)->ft
+summary(ft)
+TukeyHSD(ft)
+table(mydata$Y1,mydata$Quality.Manipulation)
+aov(Y1~Expectatations.Manipulation,mydata)->ft
+summary(ft)
+TukeyHSD(ft)
+table(mydata$Y1,mydata$Expectatations.Manipulation)
+aov(Y1~Expectatations.Manipulation+Quality.Manipulation,mydata)->ft
+summary(ft)
+
+
+HI<-table(mydata$Y1,mydata$Quality.Manipulation)
+mean(HI[1,])
+mean(HI[2,])
+hi<-table(mydata$Y1,mydata$Expectatations.Manipulation)
+mean(hi[,1])
+mean(hi[,2])
+aov(Y1~Quality.Manipulation,mydata)->ft
+summary(ft)
+TukeyHSD(ft)
+aov(Y1~Expectatations.Manipulation*Quality.Manipulation,mydata)->ft
+summary(ft)
+TukeyHSD(ft)
+ft1<- lm(Y1~Expectatations.Manipulation*Quality.Manipulation,data=mydata)
+summary(ft1)
+plot(ft)
+cor(mydata$Y1,mydata$Y2)
+plot(mydata$Y1,mydata$Y2)
+table(mydata$Y1,mydata$Y2)
+aov(Expectatations.Manipulation~Quality.Manipulation,mydata)->ft2
+summary(ft2)
+setwd("C:/Users/Ashishkumar_GUpta02/Downloads/Assign")
+mydata<- read.csv("Excel Data for bank Wages.csv")
+
+female<- subset(mydata,mydata$Sex==1)
+female_newdata<- data.frame(female[1:35,])
+head(female_newdata)
+nrow(female_newdata)
+male<- subset(mydata,mydata$Sex==0)
+nrow(male)
+mean(female_newdata$Salary_Now)
+mean(male$Salary_Now)
+
+lm((mydata$Salary_Now)~.,data=mydata)->ft
+summary(ft)
+table(mydata$Salary_Now,mydata$Sex)
+lm((mydata$Work_Exp)~.,data=mydata)->ft
+summary(ft)
+
+
+
